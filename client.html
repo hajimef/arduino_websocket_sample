@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <h1>Web Socket Test</h1>
+    <p>Server Switch <input type="checkbox" id="sw_chk"><span id="sw_txt">off</span><br />Server LED <input type="checkbox" id="led_chk"><span id="led_txt">off</span></p>
+<script
+  src="https://code.jquery.com/jquery-3.7.0.min.js"
+  integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+  crossorigin="anonymous"></script>
+<script type="text/javascript">
+$(function() {
+  var sock = new WebSocket("ws://wsserver.local:8000");
+  
+  sock.onopen = function(e) {
+    console.log("open", e);
+    sock.send("test");
+  };
+  
+  sock.onmessage = function(e) {
+    console.log("msg", e);
+    if (e.data == "on") {
+      $("#sw_txt").text("on");
+      $("#sw_chk").prop("checked", true);
+    }
+    else if (e.data == "off") {
+      $("#sw_txt").text("off");
+      $("#sw_chk").prop("checked", false);
+    }
+  };
+  
+  sock.onerror = function(error) {
+    console.log("error", error);
+  };
+
+  $("#led_chk").on('change', function() {
+    var chk = $("#led_chk").prop("checked");
+    sock.send(chk ? "led on" : "led off");
+    $("#led_txt").text(chk ? "on" : "off")
+  });
+});
+</script>
+  </body>
+</html>
